@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EcoGasto - Calculadora de Consumo de Energia</title>
+    
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <style>
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .animate-fade-in {
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState } = React;
+
+        function App() {
+            const [potencia, setPotencia] = useState('');
+            const [horas, setHoras] = useState('');
+            const [dias, setDias] = useState('30');
+            const [tarifa, setTarifa] = useState('');
+            const [concessionaria, setConcessionaria] = useState('');
+            const [resultado, setResultado] = useState(null);
+            const [loading, setLoading] = useState(false);
+          
+            const concessionarias = {
+                'CPFL Paulista': 0.92,
+                'CPFL Piratininga': 0.89,
+                'Enel SP': 0.88,
+                'Enel RJ': 0.95,
+                'Enel CE': 0.87,
+                'Light RJ': 0.93,
+                'Cemig MG': 0.91,
+                'Copel PR': 0.85,
+                'Celesc SC': 0.83,
+                'CEEE RS': 0.86,
+                'Coelba BA': 0.89,
+                'Celpe PE': 0.88,
+                'Energisa': 0.87,
+                'Equatorial': 0.86,
+                'EDP SP': 0.84,
+                'EDP ES': 0.85,
+            };
+
+            const calcularConsumo = () => {
+                if (!potencia || !horas || !dias) {
+                    alert('Preencha todos os campos!');
+                    return;
+                }
+
+                setLoading(true);
+                
+                // Simula um pequeno delay para dar feedback visual
+                setTimeout(() => {
+                    const potenciaKw = parseFloat(potencia) / 1000;
+                    const horasDiarias = parseFloat(horas);
+                    const diasMes = parseFloat(dias);
+                    const tarifaUsada = tarifa ? parseFloat(tarifa) : (concessionaria ? concessionarias[concessionaria] : 0);
+
+                    const consumoMensal = potenciaKw * horasDiarias * diasMes;
+                    const custoMensal = consumoMensal * tarifaUsada;
+                    const custoDiario = custoMensal / diasMes;
+                    const custoAnual = custoMensal * 12;
+
+                    setResultado({
+                        consumoMensal: consumoMensal.toFixed(2),
+                        custoMensal: custoMensal.toFixed(2),
+                        custoDiario: custoDiario.toFixed(2),
+                        custoAnual: custoAnual.toFixed(2),
+                        tarifaUsada: tarifaUsada.toFixed(4),
+                    });
+                    
+                    setLoading(false);
+                }, 500);
+            };
+
+            const limpar = () => {
+                setPotencia('');
+                setHoras('');
+                setDias('30');
+                setTarifa('');
+                setConcessionaria('');
+                setResultado(null);
+            };
+
+            return (
+                <div className="min-h-screen bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900 p-4 md:p-8">
+                    <div className="max-w-4xl mx-auto">
+                        <div className="text-center mb-8">
+                            <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full mb-4 shadow-lg">
+                                <span className="text-4xl">⚡</span>
+                            </div>
+                            <h1 className="text-4xl md:text-5xl font-bold text-white mb-2">
+                                Calculadora de Energia
+                            </h1>
+                            <p className="text-blue-200 text-lg">
+                                Calcule o consumo e custo de energia elétrica
+                            </p>
+                        </div>
+
+                        <div className="bg-white rounded-3xl shadow-2xl p-6 md:p-8 mb-6">
+                            <div className="grid md:grid-cols-2 gap-6 mb-6">
+                                <div>
+                                    <label className="block text-gray-700 font-semibold mb-2">
+                                        💡 Potência do Aparelho (Watts)
+                                    </label>
+                                    <input
+                                        type="number"
+                                        value={potencia}
+                                        onChange={(e) => setPotencia(e.target.value)}
+                                        placeholder="Ex: 1500"
+                                        className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-purple-500 focus:outline-none transition"
+                                    />
+                                    <p className="text-sm text-gray-500 mt-1">
+                                        Verifique na etiqueta do aparelho
+                                    </p>
+                                </div>
+
+                                <div>
+                                    <label className="block text-gray-700 font-semibold mb-2">
+                                        ⏰ Horas de Uso por Dia
+                                    </label>
+                                    <input
+                                        type="number"
+                                        step="0.5"
+                                        value={horas}
+                                        onChange={(e) => setHoras(e.target.value)}
+                                        placeholder="Ex: 8"
+                                        className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-purple-500 focus:outline-none transition"
+                                    />
+                                    <p className="text-sm text-gray-500 mt-1">
+                                        Tempo médio de uso diário
+                                    </p>
+                                </div>
+
+                                <div>
+                                    <label className="block text-gray-700 font-semibold mb-2">
+                                        📅 Dias no Mês
+                                    </label>
+                                    <input
+                                        type="number"
+                                        value={dias}
+                                        onChange={(e) => setDias(e.target.value)}
+                                        className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-purple-500 focus:outline-none transition"
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-gray-700 font-semibold mb-2">
+                                        🏢 Concessionária
+                                    </label>
+                                    <select
+                                        value={concessionaria}
+                                        onChange={(e) => {
+                                            setConcessionaria(e.target.value);
+                                            setTarifa('');
+                                        }}
+                                        className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-purple-500 focus:outline-none transition"
+                                    >
+                                        <option value="">Selecione...</option>
+                                        {Object.keys(concessionarias).sort().map((nome) => (
+                                            <option key={nome} value={nome}>
+                                                {nome} - R$ {concessionarias[nome].toFixed(4)}/kWh
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+
+                                <div className="md:col-span-2">
+                                    <label className="block text-gray-700 font-semibold mb-2">
+                                        💰 Ou informe a Tarifa Manual (R$/kWh)
+                                    </label>
+                                    <input
+                                        type="number"
+                                        step="0.0001"
+                                        value={tarifa}
+                                        onChange={(e) => {
+                                            setTarifa(e.target.value);
+                                            setConcessionaria('');
+                                        }}
+                                        placeholder="Ex: 0.92"
+                                        className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-purple-500 focus:outline-none transition"
+                                    />
+                                    <p className="text-sm text-gray-500 mt-1">
+                                        Consulte sua conta de luz para obter o valor exato
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div className="flex gap-4">
+                                <button
+                                    onClick={calcularConsumo}
+                                    disabled={loading}
+                                    className="flex-1 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-bold py-4 rounded-xl hover:from-purple-700 hover:to-blue-700 transition transform hover:scale-105 shadow-lg disabled:opacity-50"
+                                >
+                                    {loading ? '⏳ Calculando...' : '🔍 Calcular'}
+                                </button>
+                                <button
+                                    onClick={limpar}
+                                    className="px-6 bg-gray-200 text-gray-700 font-bold py-4 rounded-xl hover:bg-gray-300 transition"
+                                >
+                                    🗑️ Limpar
+                                </button>
+                            </div>
+                        </div>
+
+                        {resultado && (
+                            <div className="bg-white rounded-3xl shadow-2xl p-6 md:p-8 animate-fade-in">
+                                <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">
+                                    📊 Resultados do Cálculo
+                                </h2>
+                                
+                                <div className="grid md:grid-cols-2 gap-4 mb-6">
+                                    <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl p-6 text-white shadow-lg">
+                                        <div className="text-sm opacity-90 mb-1">Consumo Mensal</div>
+                                        <div className="text-3xl font-bold">{resultado.consumoMensal} kWh</div>
+                                    </div>
+
+                                    <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-2xl p-6 text-white shadow-lg">
+                                        <div className="text-sm opacity-90 mb-1">Custo Mensal</div>
+                                        <div className="text-3xl font-bold">R$ {resultado.custoMensal}</div>
+                                    </div>
+
+                                    <div className="bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl p-6 text-white shadow-lg">
+                                        <div className="text-sm opacity-90 mb-1">Custo Diário</div>
+                                        <div className="text-3xl font-bold">R$ {resultado.custoDiario}</div>
+                                    </div>
+
+                                    <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl p-6 text-white shadow-lg">
+                                        <div className="text-sm opacity-90 mb-1">Custo Anual</div>
+                                        <div className="text-3xl font-bold">R$ {resultado.custoAnual}</div>
+                                    </div>
+                                </div>
+
+                                <div className="bg-gray-100 rounded-xl p-4 text-center">
+                                    <p className="text-gray-700">
+                                        <span className="font-semibold">Tarifa utilizada:</span> R$ {resultado.tarifaUsada}/kWh
+                                    </p>
+                                </div>
+
+                                <div className="mt-6 bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-r-xl">
+                                    <h3 className="font-bold text-yellow-800 mb-2">💡 Dicas para Economizar:</h3>
+                                    <ul className="text-sm text-yellow-700 space-y-1">
+                                        <li>• Desligue aparelhos da tomada quando não estiver usando</li>
+                                        <li>• Prefira lâmpadas LED de baixo consumo</li>
+                                        <li>• Use ar-condicionado com moderação</li>
+                                        <li>• Aproveite a luz natural durante o dia</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        )}
+
+                        <div className="text-center mt-8 text-blue-200 text-sm">
+                            <p>⚠️ Valores de tarifas são aproximados e podem variar conforme bandeira tarifária</p>
+                            <p className="mt-2">Consulte sua conta de luz para valores exatos</p>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
