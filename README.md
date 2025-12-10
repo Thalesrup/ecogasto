@@ -1,4 +1,5 @@
 # 🌿 EcoGasto: Sua Calculadora Inteligente de Consumo de Energia
+Experimente o EcoGasto ao vivo: [**Clique aqui para testar!**](http://eco-gasto-site.s3-website.us-east-2.amazonaws.com)
 
 Cansado de surpresas na conta de luz? O **EcoGasto** é seu novo melhor amigo! É uma calculadora de energia super fácil de usar que te ajuda a descobrir rapidinho quanto cada aparelho gasta. Com ele, você entende seus gastos de verdade e ainda aprende a economizar. Simples, direto e feito pra você!
 
